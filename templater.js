@@ -80,6 +80,10 @@
 //     },
 // }
 
+
+
+// Stage 3
+
 // NEW VERSION
 
 // const Templater = {
@@ -130,18 +134,19 @@
 //     }
 // }
 
+
+
 // Stage 4
 
-
 // (function( $ ){
-  
+
 //   $.fn.templater = function(settings) {
 //     return this.each(function() {
-      
+
 //     if (!$(settings).length) {
 //       return false;
 //     }
-            
+
 //     if (settings.tags){
 //       let template = settings.tags,
 //           tagRepo = {};
@@ -151,8 +156,8 @@
 //       console.log(tagRepo);
 //       run.call(this,tagRepo);
 //     }
-      
- 
+
+
 //     function run(tagRepo){
 //       let elementsArr = [ ];
 //       for( let key in tagRepo) {
@@ -162,14 +167,14 @@
 //         })
 //       }
 //     }
-      
+
 //     function render(template, element){
 //       let pattern1 = /{{(\w+)}}/gi,
 //           pattern2 = /(\w+)/gi,
 //           TemplateAttrArr = template.match(pattern1),
 //           ElementAttrArr = String(TemplateAttrArr).match(pattern2),
 //           defaultText = 'Some Text'; 
-      
+
 //       function sourceAttr(el){
 //         if (el === 'html') {
 //           if (element.innerHTML === '') {
@@ -185,99 +190,112 @@
 //           }
 //         }
 //       }
-      
+
 //       TemplateAttrArr.forEach(function(el,i){
 //         template = template.replace(el,sourceAttr(ElementAttrArr[i]));
 //       });
-      
+
 //       return template;
 //     }
 
 //     });
- 
+
 // };
-  
+
 
 // })( jQuery );
+
+
+
 
 // Stage 5
 
 
-(function( $ ){
-  
-  $.fn.templater = function(settings) {
-    return this.each(function() {
-      
-    if (!$(settings).length) {
-      return false;
-    }
-            
-    if (settings.tags){
-      let template = settings.tags,
-          tagRepo = {};
-      for(let tag in template) {
-        tagRepo[tag] = template[tag];
-      }
-      run.call(this,tagRepo);
-    }
-      
- 
-    function run(tagRepo){
-      let elementsArr = [ ];
-      for( let key in tagRepo) {
-        console.log(this);
-        elementsArr = Array.from(this.querySelectorAll(key));
-        elementsArr.forEach(function(el,index){
-        if (el.querySelector(key)) {
-          let innerel = el.querySelector(key);
-          console.log(innerel);
-          console.log(innerel.outerHTML = render(tagRepo[key],el));
-        }else {
-          // el.outerHTML = render(tagRepo[key],el);
-        }
-        },key)
-      }
-    }
-      
-    function render(template, element){
-      let pattern1 = /{{(\w+)}}/gi,
-          pattern2 = /(\w+)/gi,
-          TemplateAttrArr = template.match(pattern1),
-          ElementAttrArr = String(TemplateAttrArr).match(pattern2),
-          defaultText = 'Some Text'; 
-      
-      function sourceAttr(el){
-        if (el === 'html') {
-          if (element.innerHTML === '') {
-            return element.innerHTML = defaultText;
-          }else {
-            return element.innerHTML
-          }
-        }else {
-          if(element.getAttribute(el) === null) {
-            return '';
-          }else {
-            return element.getAttribute(el);
-          }
-        }
-      }
-      
-      TemplateAttrArr.forEach(function(el,i){
-        template = template.replace(el,sourceAttr(ElementAttrArr[i]));
-      });
-      return template;
-      console.log(template);
-    }
+(function($) {
 
-    });
- 
-};
-  
+    $.fn.templater = function(settings) {
+        return this.each(function() {
 
-})( jQuery );
+            if (!$(settings).length) {
+                return false;
+            }
 
-$(document).templater({
-        tags: {
-          'panel': '<div class="panel"><div class="panel-heading">{{heading}}</div><div class="panel-body">{{html}}</div></div>'
-        }
-      });
+            if (settings.tags) {
+                let template = settings.tags,
+                    tagRepo = {};
+                for (let tag in template) {
+                    tagRepo[tag] = template[tag];
+                }
+                run.call(this, tagRepo);
+            }
+
+            function run(tagRepo) {
+                let elementsArr = [];
+                for (let key in tagRepo) {
+
+                    elementsArr = Array.from(this.getElementsByTagName(key));
+
+                    elementsArr.every(function(el, index, arr) {
+                        if (el.querySelector(key)) {
+                            findInner(el, key, tagRepo);
+                            run.call(this, tagRepo);
+                            return false;
+                        }
+                        el.outerHTML = render(tagRepo[key], el);
+                    }, this);
+
+                }
+            }
+
+            function findInner(el, tag, tagRepo) {
+
+                if (typeof el === "undefined") {
+                    return false;
+                }
+
+                for (let tag in tagRepo) {
+                    if (el.querySelector(tag)) {
+                        let innerelement = el.querySelector(tag);
+                        findInner(innerelement, tag, tagRepo);
+                    }
+                }
+                el.outerHTML = render(tagRepo[tag], el);
+            }
+
+
+            function render(template, element) {
+                let pattern1 = /{{(\w+)}}/gi,
+                    pattern2 = /(\w+)/gi,
+                    TemplateAttrArr = template.match(pattern1),
+                    ElementAttrArr = String(TemplateAttrArr).match(pattern2),
+                    defaultText = 'Some Text';
+
+                function sourceAttr(el) {
+                    if (el === 'html') {
+                        if (element.innerHTML === '') {
+                            return element.innerHTML = defaultText;
+                        } else {
+                            return element.innerHTML
+                        }
+                    } else {
+                        if (element.getAttribute(el) === null) {
+                            return '';
+                        } else {
+                            return element.getAttribute(el);
+                        }
+                    }
+                }
+
+                TemplateAttrArr.forEach(function(el, i) {
+                    template = template.replace(el, sourceAttr(ElementAttrArr[i]));
+                });
+                return template;
+                console.log(template);
+            }
+
+        });
+
+    };
+
+
+})(jQuery);
