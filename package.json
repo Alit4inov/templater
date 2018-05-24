@@ -1,0 +1,16 @@
+{
+  "name": "templater-js",
+  "version": "1.0.0",
+  "description": "html templater plugin",
+  "main": "templater.js",
+  "author": "Anton Litvinov",
+  "license": "ISC",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.2",
+    "gulp": "^3.9.1",
+    "gulp-uglifyes": "^0.1.3",
+    "pump": "^3.0.0",
+    "uglify-js-es6": "^2.8.9"
+  },
+  "devDependencies": {}
+}
