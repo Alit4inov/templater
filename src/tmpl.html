@@ -1,24 +1,33 @@
 <html>
 
 <head>
-    <title>Mocha</title>
+    <title>test tmpl</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 
 <body>
-    <div class="wrapper">
-        <panel heading="Outer Panel">
-            <div>Some outer content</div>
-            <panel heading="Inner Panel">
-                <div>Some Inner content</div>
-                <panel heading="Deep Inner Panel">
-                    <div>Deep Inner content</div>
-                    <bootstrap_button type="submit">button</bootstrap_button>
-                </panel>
+    <panel heading="Outer Panel">
+        <div>Some outer content</div>
+        <panel heading="Inner Panel">
+            <div>Some Inner content</div>
+            <panel heading="Deep Inner Panel">
+                <div>Deep Inner content</div>
+                <bootstrap_button type="submit">button</bootstrap_button>
             </panel>
         </panel>
-    </div>
+    </panel>
+    <panel heading="Another Outer Panel">
+        <div>Another Some outer content</div>
+        <panel heading="Another Inner Panel">
+            <bootstrap_button type="submit">Another button</bootstrap_button>
+            <div>Another Some Inner content</div>
+            <panel heading="Deep Inner Panel">
+                <div>Another Deep Inner content</div>
+                <bootstrap_button type="submit">Another button 2</bootstrap_button>
+            </panel>
+        </panel>
+    </panel>
 </body>
 
 </html>

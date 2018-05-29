@@ -1,100 +1,138 @@
+var through = require('through2'),
+    gutil = require('gulp-util'),
+    jsdom = require("jsdom"),
+    PluginError = gutil.PluginError;
 
+const PLUGIN_NAME = 'templater';
+const { JSDOM } = jsdom
 
-    
+function Templater(settings) {
 
-    const through = require('through2');
+    let stream = through.obj(function(file, enc, cb) {
 
-    const PLUGIN_NAME = 'templater';
-
-    
-
-    function templater (settings, sourceDOM) {
-
-    console.log(settings);
-    
-    
-    let that = sourceDOM;
-      
-    if ((settings).length) {
-      return false;
-    }
-            
-    if (settings.tags){
-      let template = settings.tags,
-          tagRepo = {};
-          
-      for(let tag in template) {
-        tagRepo[tag] = template[tag];
-      }
-      
-      run.call(that,tagRepo);
-    }
-
-    function run(tagRepo){
-      let elementsArr = [ ];
-      
-      for( let key in tagRepo) {
-        elementsArr = Array.from(that.querySelectorAll(key));
-        elementsArr.every(function(el,index,arr){
-          if (el.querySelector(key)) {
-              findInner(el,key,tagRepo);
-              run.call(that,tagRepo);
-              return false;
-              }
-          
-          el.outerHTML = render(tagRepo[key],el);
-        },that);
-      }
-    }
-      
-    function findInner(el,tag,tagRepo){
-          
-        if(typeof el === "undefined") {
-          return false;
+        if (file.isNull()) {
+            cb(null, file);
+            return;
         }
-      
-        for (let tag in tagRepo) {
-          if (el.querySelector(tag)) {
-            let innerelement =  el.querySelector(tag);
-            findInner(innerelement,tag,tagRepo);
-          }
-        }
-        el.outerHTML = render(tagRepo[tag],el);
-   }
-    
 
-    function render(template, element){
-      let pattern1 = /{{(\w+)}}/gi,
-          pattern2 = /(\w+)/gi,
-          TemplateAttrArr = template.match(pattern1),
-          ElementAttrArr = String(TemplateAttrArr).match(pattern2),
-          defaultText = 'Some Text'; 
-      
-      
-      
-      function sourceAttr(el){
-        if (el === 'html') {
-          if (element.innerHTML === '') {
-            return element.innerHTML = defaultText;
-          }else {
-            return element.innerHTML
-          }
-        }else {
-          if(element.getAttribute(el) === null) {
-            return '';
-          }else {
-            return element.getAttribute(el);
-          }
+        if (file.isStream()) {
+            this.emit('error', new PluginError(PLUGIN_NAME, 'Streams are not supported!'));
+            return cb();
         }
-      }
-      
-      TemplateAttrArr.forEach(function(el,i){
-        template = template.replace(el,sourceAttr(ElementAttrArr[i]));
-      });
-      console.log(template);
-      return template;
-    }
- 
-};
 
-module.exports = (settings) => templater(settings);
+        if (file.isBuffer()) {
+
+            try {
+
+                let str = file.contents.toString('utf8');
+                const DOM = new JSDOM(str);
+
+                let result = (function(settings, DOM) {
+
+                    let that = DOM.window.document.querySelector("html");
+
+                    if ((settings).length) {
+                        return false;
+                    }
+
+                    // write the parameters of custom tags to the object and call run function
+
+                    if (settings.tags) {
+                        let template = settings.tags,
+                            tagRepo = {};
+
+                        for (let tag in template) {
+                            tagRepo[tag] = template[tag];
+                        }
+
+                        run.call(that, tagRepo);
+                        return (DOM.window.document.querySelector("html").outerHTML);
+                    }
+
+                    // Main function that runs a chain of functions for converting custom tags to native for replacing html
+
+                    function run(tagRepo) {
+                        let elementsArr = [];
+                        for (let key in tagRepo) {
+                            elementsArr = Array.from(that.querySelectorAll(key));
+                            elementsArr.every(function(el, index, arr) {
+                                if (el.querySelector(key)) {
+                                    findInner(el, key, tagRepo);
+                                    run.call(that, tagRepo);
+                                    return false;
+                                }
+
+                                el.outerHTML = render(tagRepo[key], el);
+
+                            }, that);
+                        }
+                    }
+
+                    // function searches for nested custom tags and call render function for html replacement
+
+                    function findInner(el, tag, tagRepo) {
+
+                        if (typeof el === "undefined") {
+                            return false;
+                        }
+
+                        for (let tag in tagRepo) {
+                            if (el.querySelector(tag)) {
+                                let innerelement = el.querySelector(tag);
+                                findInner(innerelement, tag, tagRepo);
+                            }
+                        }
+                        return el.outerHTML = render(tagRepo[tag], el);
+                    }
+
+                    // function that directly performs the conversion and return template
+
+                    function render(template, sourceElement) {
+                        let attrpattern = /{{(\w+)}}/gi,
+                            TemplateAttrArr = template.match(attrpattern),
+                            defaultText = 'Some Text';
+
+                        let AttrArr = TemplateAttrArr.map(function(el) {
+                            return el.replace(/[{+}+]/g, '');
+                        })
+                        TemplateAttrArr.forEach(function(el, i) {
+                            template = template.replace(el, sourceAttr(AttrArr[i], sourceElement, defaultText));
+                        });
+                        return template;
+                    }
+
+                    // function that replaces the template values ​to ​source values, is called by the render function when converting elements
+
+                    function sourceAttr(attr, sourceElement, defaultText) {
+                        if (attr === 'html') {
+                            if (sourceElement.innerHTML === '') {
+                                return sourceElement.innerHTML = defaultText;
+                            } else {
+                                return sourceElement.innerHTML
+                            }
+                        } else {
+                            if (sourceElement.getAttribute(attr) === null) {
+                                return '';
+                            } else {
+                                return sourceElement.getAttribute(attr);
+                            }
+                        }
+                    }
+
+                })(settings, DOM);
+
+                file.contents = new Buffer.from(result);
+
+                return cb(null, file);
+
+            } catch (err) {
+                this.emit('error', new PluginError(PLUGIN_NAME, err));
+                return cb();
+            }
+        }
+
+    });
+    return stream;
+}
+
+module.exports = (settings) => Templater(settings);

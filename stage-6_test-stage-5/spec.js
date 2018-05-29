@@ -11,7 +11,8 @@ describe("Stage 5", function() {
                 '--------------<div>Some Inner content</div>',
                 '--------------<div class="panel">',
                 '-----------------<div class="panel-heading">Deep Inner Panel</div>',
-                '-----------------<div class="panel-body">","<div>Deep Inner content</div>',
+                '-----------------<div class="panel-body">',
+                '---------------------<div>Deep Inner content</div>',
                 '---------------------<button class="btn btn-default bootstrap" type="submit">Some Text</button>',
                 '-----------------</div>',
                 '--------------</div>',
@@ -64,10 +65,10 @@ describe("Stage 5", function() {
         panel.length.should.equals(3, 'Element with class `panel` was not created. Amount of `panel` elements in DOM');
         panelHeading.length.should.equals(3, 'Element with class `panel-heading` tag was not created. Amount of `panel-heading` elements in DOM');
         panelBody.length.should.equals(3, 'Element with class `panel-body` tag was not created. Amount of `panel-body` elements in DOM');
-        button.length.should.equals(1, 'Element with class `button` tag was not created. Amount of `button` elements in DOM');
+        button.length.should.equals(1, 'Element with tag name `button` was not created.');
         button.attr('class').should.equals('btn btn-default bootstrap', 'Element with `button` tag has wrong class. It has class');
         button.attr('type').should.equals('submit', 'Element with `button` tag has wrong type. It has class');
-        button.html().should.equals('Some Text', 'Element with `button` tag innerHTML');
+        button.html().should.equals('Some Text', 'Element with `button` tag has wrong innerHTML, must be "Some text"');
     });
 
 });
