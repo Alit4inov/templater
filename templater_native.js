@@ -1,13 +1,4 @@
-/*
- * Inspiration (well… copy pasting more or less) from:
- * https://github.com/ScottHamper/Cookies/blob/0.3.1/src/cookies.js#L127-L140
- *
- * Thanks Scott!
- */
-(function (global) {
-    'use strict';
-
-    var Templater = function(settings, VDOM) {
+exports.templater = function(settings, VDOM) {
 
     if ((settings).length) {
         return false;
@@ -100,23 +91,3 @@
         return sourceElement.getAttribute(attr);
     }
 }
-
-    // /* …and here */
-    // MyModule.foo = 'bar';
-    console.log(typeof exports);
-
-    // AMD support
-    if (typeof define === 'function' && define.amd) {
-        define(function () { return Templater; });
-    // CommonJS and Node.js module support.
-    } else if (typeof exports !== 'undefined') {
-        // Support Node.js specific `module.exports` (which can be a function)
-        if (typeof module !== 'undefined' && module.exports) {
-            exports = module.exports = Templater;
-        }
-        // But always support CommonJS module 1.1.1 spec (`exports` cannot be a function)
-        exports.Templater = Templater;
-    } else {
-        global.Templater = Templater;
-    }
-})(this);

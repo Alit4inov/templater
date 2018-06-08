@@ -3,7 +3,7 @@
 var gulp = require('gulp'),
     pump = require('pump'),
     uglify = require('gulp-uglifyes'),
-    templater = require('./templater-gulp.js'),
+    templater = require('../gulp-templater.js'),
     rename = require('gulp-rename');
 
 gulp.task('build', function() {
@@ -13,12 +13,12 @@ gulp.task('build', function() {
         rename({
             suffix: '.min'
         }),
-        gulp.dest('./dist/js')
+        gulp.dest('../dist/js')
     ], );
 });
 
 gulp.task('tmpl-build', function() {
-    gulp.src('./demo/src/tmpl.html')
+    gulp.src('./src/tmpl.html')
         .pipe(templater({
             tags: {
                 'panel': '<div class="panel"><div class="panel-heading">{{heading}}</div><div class="panel-body">{{html}}</div></div>',
