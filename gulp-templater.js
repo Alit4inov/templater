@@ -24,17 +24,11 @@ function GulpTemplater(settings) {
         if (file.isBuffer()) {
 
             try {
-
                 let str = file.contents.toString('utf8');
-
                 const VDOM = new JSDOM(str);
-
                 let result = _templater.Templater(settings, VDOM);
-
                 file.contents = new Buffer.from(result);
-
                 return cb(null, file);
-
             } catch (err) {
                 this.emit('error', new PluginError(PLUGIN_NAME, err));
                 return cb();

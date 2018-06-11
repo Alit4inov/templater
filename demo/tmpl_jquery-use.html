@@ -1,0 +1,45 @@
+<html>
+
+<head>
+    <title>test tmpl</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../node_modules/jquery/dist/jquery.min.js"></script>
+</head>
+
+<body>
+    <panel heading="Outer Panel">
+        <div>Some outer content</div>
+        <panel heading="Inner Panel">
+            <div>Some Inner content</div>
+            <panel heading="Deep Inner Panel">
+                <div>Deep Inner content</div>
+                <bootstrap_button type="submit">button</bootstrap_button>
+            </panel>
+        </panel>
+    </panel>
+    <panel heading="Another Outer Panel">
+        <div>Another Some outer content</div>
+        <panel heading="Another Inner Panel">
+            <bootstrap_button type="submit">Another button</bootstrap_button>
+            <div>Another Some Inner content</div>
+            <panel heading="Deep Inner Panel">
+                <div>Another Deep Inner content</div>
+                <bootstrap_button type="submit">Another button 2</bootstrap_button>
+            </panel>
+        </panel>
+    </panel>
+    <script src="../templater.js"></script>
+    <script src="../templater.jquery.js"></script>
+    <script>
+        $(document).templater({
+            tags: {
+                'panel': '<div class="panel"><div class="panel-heading">{{heading}}</div><div class="panel-body">{{html}}</div></div>',
+                'bootstrap_button': '<button class="btn btn-default {{class}}" type="{{type}}">{{html}}</button>'
+            }
+        });
+    </script>
+
+</body>
+
+</html>
